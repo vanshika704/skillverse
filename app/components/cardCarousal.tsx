@@ -75,13 +75,23 @@ export default function CoverflowCarousel() {
         }}
         navigation={true}
         autoplay={{
-          delay: 2000, // 3 seconds between slides
-          disableOnInteraction: false, // continue autoplay after user interaction
-          pauseOnMouseEnter: true, // pause autoplay when mouse is over the carousel
+          delay: 2000,
+          disableOnInteraction: false,
+          pauseOnMouseEnter: true,
         }}
         modules={[EffectCoverflow, Navigation, Autoplay]}
         className="!py-6"
         onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
+        breakpoints={{
+          0: {
+            slidesPerView: 1,
+            centeredSlides: false,
+          },
+          768: {
+            slidesPerView: 'auto',
+            centeredSlides: true,
+          },
+        }}
       >
         {workshops.map((workshop, index) => (
           <SwiperSlide key={workshop.id} className="!w-80 !h-64">
@@ -96,9 +106,7 @@ export default function CoverflowCarousel() {
                 alt={workshop.title}
                 className="w-full h-full object-cover"
               />
-
               <div className="absolute inset-0 bg-gradient-to-t from-cyan-900/70 to-transparent" />
-
               <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
                 <h3 className="font-bold text-lg">{workshop.title}</h3>
                 <p className="text-cyan-100 text-sm mb-2">
