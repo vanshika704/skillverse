@@ -12,7 +12,7 @@ export function ExpandableCardDemo() {
     right: true,
   });
   const id = useId();
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null!); // Non-null assertion
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -68,7 +68,8 @@ export function ExpandableCardDemo() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [active]);
 
-  useOutsideClick(ref, () => setActive(null));
+  // useOutsideClick(ref, () => setActive(null));
+  useOutsideClick(ref as React.RefObject<HTMLDivElement>, () => setActive(null));
 
   return (
     <div className="min-h-screen py-2 px-4 ">
