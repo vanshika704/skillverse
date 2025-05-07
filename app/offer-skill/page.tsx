@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { Sidebar } from '../components/SideBar';
 
 const localizer = momentLocalizer(moment);
 
@@ -99,7 +100,8 @@ export default function OfferskillsPage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: colors.background }}>
+    <div className='flex'><Sidebar/>
+    <div className="min-h-screen w-screen" style={{ backgroundColor: colors.background }}>
       {/* Header */}
       <header className="p-6" style={{ backgroundColor: colors.primary }}>
         <div className="max-w-6xl mx-auto flex justify-between items-center">
@@ -441,6 +443,7 @@ export default function OfferskillsPage() {
           )}
         </div>
       </main>
+    </div>
     </div>
   );
 }
