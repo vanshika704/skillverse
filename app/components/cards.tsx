@@ -12,7 +12,7 @@ export function ExpandableCardDemo() {
     right: true,
   });
   const id = useId();
-  const ref = useRef<HTMLDivElement>(null); // ✅ just right
+  const ref = useRef<HTMLDivElement>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
