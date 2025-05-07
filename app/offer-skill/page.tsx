@@ -86,7 +86,7 @@ export default function OfferskillsPage() {
     });
   };
 
-  // Framer-inspired cyan color theme
+
   const colors = {
     primary: '#047575FF',
     primaryLight: '#023B3EFF',
