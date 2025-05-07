@@ -12,7 +12,8 @@ export function ExpandableCardDemo() {
     right: true,
   });
   const id = useId();
-  const ref = useRef<HTMLDivElement|null>(null);
+  const ref = useRef<HTMLDivElement>(null); // ✅ just right
+
   const containerRef = useRef<HTMLDivElement>(null);
 
   const checkScroll = () => {
