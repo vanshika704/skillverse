@@ -1,4 +1,6 @@
-"use client"
+
+
+"use client";
 import React, { useState, FC } from "react";
 import {
   FiChevronsRight,
@@ -13,6 +15,8 @@ import {
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
+
 // Sidebar data
 const sidebarOptions = [
   { icon: FiHome, title: "Dashboard" },
@@ -50,7 +54,7 @@ export const Sidebar: FC = () => {
     >
       <div className="flex h-full flex-col p-2">
         <BrandHeader open={open || hovered} />
-        
+
         <div className="flex-1 space-y-1 overflow-y-auto">
           {sidebarOptions.map((option) => (
             <SidebarOption
@@ -72,61 +76,70 @@ export const Sidebar: FC = () => {
 };
 
 // SidebarOption component
-const SidebarOption: FC<SidebarOptionProps> = ({ Icon, title, selected, setSelected, open, notifs }) => {
+const SidebarOption: FC<SidebarOptionProps> = ({
+  Icon,
+  title,
+  selected,
+  setSelected,
+  open,
+  notifs,
+}) => {
   return (
-    <motion.button
-      layout
-      onClick={() => setSelected(title)}
-      className={`relative flex h-12 w-full items-center rounded-lg transition-all ${
-        selected === title 
-          ? "bg-gradient-to-r from-cyan-100 to-cyan-50 text-cyan-800 shadow-sm" 
-          : "text-gray-600 hover:bg-cyan-50"
-      }`}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-    >
-      <motion.div 
-        className="grid h-full w-12 place-content-center text-xl"
-        animate={{ 
-          marginRight: open ? "0.5rem" : "0rem",
-          scale: selected === title ? 1.1 : 1
-        }}
+    <Link href={`/${title.toLowerCase().replace(" ", "-")}`} passHref>
+      <motion.button
+        layout
+        onClick={() => setSelected(title)}
+        className={`relative flex h-12 w-full items-center rounded-lg transition-all ${
+          selected === title
+            ? "bg-gradient-to-r from-cyan-100 to-cyan-50 text-cyan-800 shadow-sm"
+            : "text-gray-600 hover:bg-cyan-50"
+        }`}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
       >
-        <Icon />
-      </motion.div>
-      
-      <AnimatePresence>
-        {open && (
-          <motion.span
-            key={`text-${title}`}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -10 }}
-            transition={{ duration: 0.2 }}
-            className="text-sm font-medium"
-          >
-            {title}
-          </motion.span>
-        )}
-      </AnimatePresence>
+        <motion.div
+          className="grid h-full w-12 place-content-center text-xl"
+          animate={{
+            marginRight: open ? "0.5rem" : "0rem",
+            scale: selected === title ? 1.1 : 1,
+          }}
+        >
+          <Icon />
+        </motion.div>
 
-      {notifs && (
         <AnimatePresence>
-          {(open || selected === title) && (
+          {open && (
             <motion.span
-              key={`notif-${title}`}
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 500 }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-cyan-500 px-2 py-0.5 text-xs font-bold text-white shadow-sm"
+              key={`text-${title}`}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={{ duration: 0.2 }}
+              className="text-sm font-medium"
             >
-              {notifs}
+              {title}
             </motion.span>
           )}
         </AnimatePresence>
-      )}
-    </motion.button>
+
+        {notifs && (
+          <AnimatePresence>
+            {(open || selected === title) && (
+              <motion.span
+                key={`notif-${title}`}
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 500 }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-cyan-500 px-2 py-0.5 text-xs font-bold text-white shadow-sm"
+              >
+                {notifs}
+              </motion.span>
+            )}
+          </AnimatePresence>
+        )}
+      </motion.button>
+    </Link>
   );
 };
 
@@ -134,34 +147,33 @@ const SidebarOption: FC<SidebarOptionProps> = ({ Icon, title, selected, setSelec
 const BrandHeader: FC<BrandHeaderProps> = ({ open }) => {
   return (
     <div className="mb-4 border-b border-cyan-200 pb-4">
-      <motion.div 
+      <motion.div
         className="flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-cyan-50"
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.98 }}
       >
         <div className="flex items-center gap-2">
-          <motion.div 
-            layout 
+          <motion.div
+            layout
             className="grid size-10 place-content-center rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 text-white font-bold shadow-md"
-            animate={{ 
+            animate={{
               scale: open ? 1 : 1.1,
-              rotate: open ? 0 : 360
+              rotate: open ? 0 : 360,
             }}
             transition={{ type: "spring" }}
           >
-        <Image 
-  src="/assets/skillverselogo.png" 
-  alt="SkillVerse Logo" 
-  width={40} 
-  height={40}
-  className="rounded-lg"
-/>
-
+            <Image
+              src="/assets/skillverselogo.png"
+              alt="SkillVerse Logo"
+              width={40}
+              height={40}
+              className="rounded-lg"
+            />
           </motion.div>
-          
+
           <AnimatePresence>
             {open && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
@@ -173,7 +185,7 @@ const BrandHeader: FC<BrandHeaderProps> = ({ open }) => {
             )}
           </AnimatePresence>
         </div>
-        
+
         {open && (
           <motion.div
             initial={{ rotate: 180 }}
@@ -189,7 +201,11 @@ const BrandHeader: FC<BrandHeaderProps> = ({ open }) => {
 };
 
 // ToggleSidebar component
-const ToggleSidebar: FC<ToggleSidebarProps & { hovered: boolean }> = ({ open, setOpen, hovered }) => {
+const ToggleSidebar: FC<ToggleSidebarProps & { hovered: boolean }> = ({
+  open,
+  setOpen,
+  hovered,
+}) => {
   return (
     <motion.button
       layout
@@ -198,20 +214,20 @@ const ToggleSidebar: FC<ToggleSidebarProps & { hovered: boolean }> = ({ open, se
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >
-      <motion.div 
+      <motion.div
         className="text-cyan-600"
-        animate={{ 
+        animate={{
           rotate: open ? 180 : 0,
-          scale: hovered && !open ? 1.2 : 1
+          scale: hovered && !open ? 1.2 : 1,
         }}
         transition={{ type: "spring" }}
       >
         <FiChevronsRight size={20} />
       </motion.div>
-      
+
       <AnimatePresence>
         {open && (
-          <motion.span 
+          <motion.span
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -10 }}
@@ -241,21 +257,18 @@ const MainContent: FC = () => {
         transition={{ duration: 0.5 }}
         className="max-w-4xl mx-auto"
       >
-        <motion.h1 
+        <motion.h1
           className="text-4xl font-bold text-cyan-800 mb-6"
           whileHover={{ scale: 1.01 }}
         >
           Welcome to SkillVerse
         </motion.h1>
-        
-        <motion.p 
-          className="text-lg text-gray-600 mb-8"
-          whileHover={{ scale: 1.005 }}
-        >
+
+        <motion.p className="text-lg text-gray-600 mb-8" whileHover={{ scale: 1.005 }}>
           Connect, share, and grow by exchanging your skills with the community.
         </motion.p>
-        
-        <motion.div 
+
+        <motion.div
           className="grid grid-cols-1 md:grid-cols-3 gap-6"
           initial="hidden"
           animate="visible"
@@ -301,5 +314,3 @@ interface ToggleSidebarProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   hovered: boolean;
 }
-
-

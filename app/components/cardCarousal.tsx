@@ -27,40 +27,110 @@ export default function CoverflowCarousel() {
       title: 'Digital Painting Basics',
       instructor: 'Alex Morgan',
       price: 29,
-      imageUrl: 'https://images.unsplash.com/photo-1578926375605-eaf7559b1458?w=500'
+      imageUrl: 'https://images.unsplash.com/photo-1541963463532-d68292c34b19',
     },
     {
       id: '2',
       title: 'Intro to Web Development',
       instructor: 'Sam Chen',
       price: 'Free',
-      imageUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=500'
+      imageUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085',
     },
     {
       id: '3',
       title: 'Yoga for Beginners',
       instructor: 'Priya K.',
       price: 19,
-      imageUrl: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=500'
+      imageUrl: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597',
     },
     {
       id: '4',
       title: 'Photography Fundamentals',
       instructor: 'Emma W.',
       price: 39,
-      imageUrl: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=500'
+      imageUrl: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e',
     },
     {
       id: '5',
       title: 'Music Production 101',
       instructor: 'DJ Kaela',
       price: 49,
-      imageUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500'
-    }
+      imageUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4',
+    },
+    {
+      id: '6',
+      title: 'Digital Illustration for Beginners',
+      instructor: 'Ava Morgan',
+      price: 59,
+      imageUrl: 'https://images.unsplash.com/photo-1555099962-4199c345e5dd',
+    },
+    {
+      id: '7',
+      title: 'Fundamentals of Web Development',
+      instructor: 'Leo Carter',
+      price: 69,
+      imageUrl: 'https://images.unsplash.com/photo-1499951360447-b19be8fe80f5',
+    },
+    {
+      id: '8',
+      title: 'Creative Writing Masterclass',
+      instructor: 'Sophia Lin',
+      price: 45,
+      imageUrl: 'https://images.unsplash.com/photo-1455390582262-044cdead277a',
+    },
+    {
+      id: '9',
+      title: 'Photography: From Beginner to Pro',
+      instructor: 'Ethan Reyes',
+      price: 55,
+      imageUrl: 'https://images.unsplash.com/photo-1504198266287-1659872e6590',
+    },
+    {
+      id: '10',
+      title: 'UI/UX Design Bootcamp',
+      instructor: 'Mira Patel',
+      price: 79,
+      imageUrl: 'https://images.unsplash.com/photo-1541462608143-67571c6738dd',
+    },
+    {
+      id: '11',
+      title: 'Introduction to Game Development',
+      instructor: 'Carlos Rivera',
+      price: 65,
+      imageUrl: 'https://images.unsplash.com/photo-1534889156217-d643df14f14a',
+    },
+    {
+      id: '12',
+      title: 'Data Science with Python',
+      instructor: 'Nina Zhang',
+      price: 89,
+      imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f',
+    },
+    {
+      id: '13',
+      title: 'Basics of Public Speaking',
+      instructor: 'Oliver Brooks',
+      price: 39,
+      imageUrl: 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4',
+    },
+    {
+      id: '14',
+      title: 'Entrepreneurship Essentials',
+      instructor: 'Jasmine Lee',
+      price: 99,
+      imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f',
+    },
+    {
+      id: '15',
+      title: 'Mindfulness & Meditation Basics',
+      instructor: 'Liam Nguyen',
+      price: 29,
+      imageUrl: 'https://images.unsplash.com/photo-1534889156217-d643df14f14a',
+    },
   ];
 
   return (
-    <div className="w-full h-full px-6 py-4">
+    <div className="w-[1300px] bg-gradient-to-br from-neutral-950 via-cyan-700 rounded-4xl to-neutral-950 h-full px-6 py-4">
       <Swiper
         effect={'coverflow'}
         grabCursor={true}
@@ -103,7 +173,7 @@ export default function CoverflowCarousel() {
             >
               <img
                 src={workshop.imageUrl}
-                alt={workshop.title}
+               
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-cyan-900/70 to-transparent" />
