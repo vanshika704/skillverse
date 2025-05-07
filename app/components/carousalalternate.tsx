@@ -4,7 +4,7 @@ import { Sidebar } from "./SideBar";
 import { motion, AnimatePresence } from 'framer-motion';
 
 function SkillverseDashboard() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  // const [activeTab, setActiveTab] = useState('dashboard');
   const [currentCourseIndex, setCurrentCourseIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   
@@ -85,7 +85,7 @@ function SkillverseDashboard() {
 
   return (
     <div className="min-h-screen flex bg-white">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar  />
       
       {/* Main Content */}
       <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16 overflow-y-auto">
