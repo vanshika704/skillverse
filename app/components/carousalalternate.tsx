@@ -573,10 +573,10 @@ function SkillverseDashboard() {
           </div>
         </motion.div>
         
-        {/* Recommendations & Achievements */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+       
+        {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-8"> */}
           {/* Recommendations */}
-          <motion.div 
+          {/* <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
@@ -651,7 +651,86 @@ function SkillverseDashboard() {
               ))}
             </div>
           </motion.div>
-          
+           */}
+
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+  {/* Recommendations */}
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.4 }}
+    className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100"
+  >
+    <div className="flex items-center justify-between mb-4 sm:mb-6 flex-wrap gap-2">
+      <h2 className="text-xl sm:text-2xl font-semibold text-cyan-900">Recommended For You</h2>
+      <button className="text-cyan-700 hover:text-cyan-900 text-sm font-medium flex items-center group">
+        See More
+        <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+
+    <div className="space-y-4">
+      {recommendations.map((course, index) => (
+        <motion.div 
+          key={course.id}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 * index }}
+          whileHover={{ y: -5 }}
+          className="flex items-center bg-cyan-50 hover:bg-cyan-100 rounded-xl p-3 sm:p-4 transition-all duration-300 cursor-pointer group"
+        >
+          <div className="relative flex-shrink-0">
+            <img 
+              src={course.thumbnail} 
+              alt={course.title}
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover border-2 border-white group-hover:border-cyan-300 transition-all"
+            />
+            {course.isNew && (
+              <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-bold">
+                NEW
+              </div>
+            )}
+          </div>
+          <div className="flex-1 ml-3 sm:ml-4">
+            <h4 className="font-medium text-cyan-900 text-sm sm:text-base">{course.title}</h4>
+            <p className="text-xs sm:text-sm text-cyan-700">{course.instructor}</p>
+            <div className="flex flex-wrap items-center mt-1 text-[10px] sm:text-xs text-cyan-700 gap-x-3">
+              <span className="flex items-center">
+                <svg className="w-3 h-3 mr-1 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0..." />
+                </svg>
+                {course.rating} ({course.students.toLocaleString()})
+              </span>
+              <span className="flex items-center">
+                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9..." />
+                </svg>
+                {course.duration}
+              </span>
+              <span className="flex items-center">
+                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9..." />
+                </svg>
+                {course.level}
+              </span>
+            </div>
+          </div>
+          <motion.button 
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="p-2 sm:p-2.5 bg-cyan-600 hover:bg-cyan-700 rounded-full text-white ml-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+          </motion.button>
+        </motion.div>
+      ))}
+    </div>
+  </motion.div>
+
           {/* Achievements */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
