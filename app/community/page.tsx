@@ -1,10 +1,9 @@
-// app/community/page.tsx
-'use client'; // Required for Framer Motion and interactive elements
+
+'use client'; 
 
 import { motion } from 'framer-motion';
 import { FiSearch, FiFilter, FiTrendingUp, FiUsers, FiAward, FiBookmark } from 'react-icons/fi';
 
-// Make sure these components exist and are properly exported in their respective files
 import CoverflowCarousel from '../components/cardCarousal';
 import { ExpandableCardDemo } from '../components/cards';
 import { Sidebar } from '../components/SideBar';
