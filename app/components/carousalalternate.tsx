@@ -203,7 +203,7 @@ function SkillverseDashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           style={{ y }}
-          className="relative rounded-2xl overflow-hidden mb-8 bg-gradient-to-br from-cyan-900 via-cyan-700 to-indigo-800 shadow-2xl"
+          className="relative rounded-2xl overflow-hidden mb-8 bg-gradient-to-br from-cyan-700 via-cyan-500 to-cyan-800 shadow-2xl"
         >
           <div className="absolute inset-0 bg-noise opacity-10"></div>
           <div className="absolute inset-0 bg-gradient-to-r from-cyan-900/50 to-transparent z-10"></div>
@@ -574,84 +574,7 @@ function SkillverseDashboard() {
         </motion.div>
         
        
-        {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-8"> */}
-          {/* Recommendations */}
-          {/* <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold text-cyan-900">Recommended For You</h2>
-              <button className="text-cyan-700 hover:text-cyan-900 text-sm font-medium flex items-center group">
-                See More
-                <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-            
-            <div className="space-y-4">
-              {recommendations.map((course, index) => (
-                <motion.div 
-                  key={course.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 * index }}
-                  whileHover={{ y: -5 }}
-                  className="flex items-center bg-cyan-50 hover:bg-cyan-100 rounded-xl p-4 transition-all duration-300 cursor-pointer group"
-                >
-                  <div className="relative">
-                    <img 
-                      src={course.thumbnail} 
-                      alt={course.title}
-                      className="w-16 h-16 rounded-lg object-cover mr-4 border-2 border-white group-hover:border-cyan-300 transition-all"
-                    />
-                    {course.isNew && (
-                      <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">
-                        NEW
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-medium text-cyan-900">{course.title}</h4>
-                    <p className="text-sm text-cyan-700">{course.instructor}</p>
-                    <div className="flex items-center mt-1 text-xs text-cyan-700">
-                      <span className="flex items-center mr-3">
-                        <svg className="w-3 h-3 mr-1 text-amber-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                        {course.rating} ({course.students.toLocaleString()})
-                      </span>
-                      <span className="flex items-center mr-3">
-                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {course.duration}
-                      </span>
-                      <span className="flex items-center">
-                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                        {course.level}
-                      </span>
-                    </div>
-                  </div>
-                  <motion.button 
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="p-2 bg-cyan-600 hover:bg-cyan-700 rounded-full text-white"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                  </motion.button>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-           */}
+        
 
 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
   {/* Recommendations */}
