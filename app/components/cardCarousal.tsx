@@ -130,7 +130,7 @@ export default function CoverflowCarousel() {
   ];
 
   return (
-    <div className="w-[1300px] bg-gradient-to-br from-neutral-950 via-cyan-700 rounded-4xl to-neutral-950 h-full px-6 py-4">
+    <div className="w-[1300px]  h-full px-6 py-4">
       <Swiper
         effect={'coverflow'}
         grabCursor={true}
