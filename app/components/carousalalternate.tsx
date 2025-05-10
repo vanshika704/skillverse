@@ -4,14 +4,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { Sidebar } from "./SideBar";
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import user from '../models/user';
+
+import { jwtDecode } from 'jwt-decode';
+import { useRouter } from 'next/navigation';
 
 function SkillverseDashboard() {
   const [currentCourseIndex, setCurrentCourseIndex] = useState(0);
   const [progress, setProgress] = useState(0);
 
-  const [showNotification, setShowNotification] = useState(true);
-  const [streakCount, setStreakCount] = useState(7);
+ 
   const [timeOfDay, setTimeOfDay] = useState('morning');
   
   const containerRef = useRef(null);
@@ -20,7 +21,27 @@ function SkillverseDashboard() {
     offset: ["start start", "end start"]
   });
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  
+    
+  type DecodedToken = {
+    id: string;
+    username: string;
+    iat: number;
+    exp: number;
+  };
+   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const decoded = jwtDecode<DecodedToken>(token);
+          setDecodedToken(decoded);
+        } catch (error) {
+          console.error('Error decoding token:', error);
+        }
+      }
+    }
+  }, []);
   // Determine time of day
   useEffect(() => {
     const hour = new Date().getHours();
@@ -28,7 +49,11 @@ function SkillverseDashboard() {
     else if (hour < 18) setTimeOfDay('afternoon');
     else setTimeOfDay('evening');
   }, []);
+const router = useRouter();
 
+  const _handleExploreCourses = () => {
+    router.push('/community');
+  };
   // Mock data
   const courses = [
     {
@@ -139,14 +164,7 @@ function SkillverseDashboard() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Close notification after 5 seconds
-  useEffect(() => {
-    if (showNotification) {
-      const timer = setTimeout(() => setShowNotification(false), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [showNotification]);
-
+  
   const greeting = () => {
     switch(timeOfDay) {
       case 'morning': return 'Good morning';
@@ -157,45 +175,12 @@ function SkillverseDashboard() {
   };
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-cyan-50 to-indigo-50" ref={containerRef}>
+    <div className="min-h-screen flex " ref={containerRef}>
       <Sidebar  />
       
       {/* Main Content */}
       <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16 overflow-y-auto">
-        {/* Notification */}
-        <AnimatePresence>
-          {showNotification && (
-            <motion.div 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-              className="relative mb-6 p-4 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl shadow-lg text-white"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="p-2 bg-white bg-opacity-20 rounded-full mr-3">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="font-medium">New feature available!</p>
-                    <p className="text-sm opacity-90">Try our new AI-powered learning assistant</p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setShowNotification(false)}
-                  className="p-1 rounded-full hover:bg-white hover:bg-opacity-20 transition-all"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+      
 
         {/* Hero Section */}
         <motion.div 
@@ -245,7 +230,7 @@ function SkillverseDashboard() {
               >
                 <span className="text-lg text-cyan-200 mr-2">{greeting()},</span>
                 <div className="relative">
-                  <span className="text-4xl md:text-5xl font-bold text-white">Alex</span>
+                  <span className="text-4xl md:text-5xl font-bold text-white">{decodedToken?.username }</span>
            
 
 
@@ -280,6 +265,7 @@ function SkillverseDashboard() {
                 <motion.button 
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={_handleExploreCourses}
                   className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-full shadow-lg transition-all duration-300 flex items-center"
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -299,28 +285,8 @@ function SkillverseDashboard() {
                 </motion.button>
               </motion.div>
               
-              {/* Streak counter */}
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8 }}
-                className="mt-6 flex items-center bg-white bg-opacity-10 backdrop-blur-sm rounded-full py-2 px-4 w-max"
-              >
-                <div className="relative">
-                  <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white font-bold">
-                    {streakCount}
-                  </div>
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                      <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-3">
-                  <p className="text-xs text-cyan-900">Current streak</p>
-                  <p className="text-sm font-medium text-cyan-900">7 days in a row</p>
-                </div>
-              </motion.div>
+         
+             
             </div>
 
             {/* Image Overflow Section */}

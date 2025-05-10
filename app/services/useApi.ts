@@ -6,16 +6,25 @@ type Method = "GET" | "POST" | "PUT" | "DELETE";
 
 const useApi = () => {
   const request = useCallback(
-    async (endpoint: string, method: Method = "GET", body?: any) => {
+    async (endpoint: string, method: Method = "GET", body?: any, isFormData: boolean = false) => {
       try {
+        const headers: Record<string, string> = {};
+
+        // If we're not sending FormData, set Content-Type to application/json
+        if (!isFormData) {
+          headers["Content-Type"] = "application/json";
+        }
+
+        // Prepare the body based on whether it's FormData or JSON
+        const bodyContent = isFormData ? body : body ? JSON.stringify(body) : undefined;
+
         const res = await fetch(`${BASE_URL}${endpoint}`, {
           method,
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: body ? JSON.stringify(body) : undefined,
+          headers,
+          body: bodyContent,
         });
 
+        // Parse the response
         const data = await res.json();
 
         if (!res.ok) {
