@@ -54,6 +54,9 @@ const router = useRouter();
   const _handleExploreCourses = () => {
     router.push('/community');
   };
+    const _handleViewProgress = () => {
+    router.push('/viewprogress');
+  };
   // Mock data
   const courses = [
     {
@@ -276,6 +279,7 @@ const router = useRouter();
                 <motion.button 
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={_handleViewProgress}
                   className="px-6 py-3 bg-cyan-600 bg-opacity-20 hover:bg-opacity-30 text-white font-medium rounded-full shadow-lg transition-all duration-300 flex items-center"
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
