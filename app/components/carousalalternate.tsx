@@ -4,9 +4,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Sidebar } from "./SideBar";
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-
-import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
+import UserName from '../offer-skill/username';
 
 function SkillverseDashboard() {
   const [currentCourseIndex, setCurrentCourseIndex] = useState(0);
@@ -22,26 +21,6 @@ function SkillverseDashboard() {
   });
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
     
-  type DecodedToken = {
-    id: string;
-    username: string;
-    iat: number;
-    exp: number;
-  };
-   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const decoded = jwtDecode<DecodedToken>(token);
-          setDecodedToken(decoded);
-        } catch (error) {
-          console.error('Error decoding token:', error);
-        }
-      }
-    }
-  }, []);
   // Determine time of day
   useEffect(() => {
     const hour = new Date().getHours();
@@ -233,7 +212,7 @@ const router = useRouter();
               >
                 <span className="text-lg text-cyan-200 mr-2">{greeting()},</span>
                 <div className="relative">
-                  <span className="text-4xl md:text-5xl font-bold text-white">{decodedToken?.username }</span>
+                  <span className="text-4xl md:text-5xl font-bold text-white"><UserName/></span>
            
 
 
