@@ -25,49 +25,32 @@ const Earnings: React.FC = () => {
   const [mounted, setMounted] = useState(false); // Prevent render until after hydration
 
   useEffect(() => {
-    // Ensure this only runs on the client
     setMounted(true);
 
-    setTransactions([
-      {
-        id: '1',
-        date: new Date(2023, 9, 6),
-        workshopTitle: 'UI Design Fundamentals',
-        participants: 25,
-        amount: 250,
-        status: 'paid'
-      },
-      {
-        id: '2',
-        date: new Date(2023, 9, 13),
-        workshopTitle: 'React Basics',
-        participants: 20,
-        amount: 200,
-        status: 'paid'
-      },
-      {
-        id: '3',
-        date: new Date(2023, 9, 20),
-        workshopTitle: 'TypeScript Fundamentals',
-        participants: 15,
-        amount: 180,
-        status: 'paid'
-      },
-      {
-        id: '4',
-        date: new Date(2023, 10, 1),
-        workshopTitle: 'Advanced CSS',
-        participants: 18,
-        amount: 160,
-        status: 'processing'
+    // Fetch transactions from the payment API (Razorpay or similar)
+    const fetchTransactions = async () => {
+      try {
+        const response = await fetch('/api/transactions'); // API endpoint for transactions
+        const data = await response.json();
+        setTransactions(data);
+      } catch (error) {
+        console.error('Error fetching transactions:', error);
       }
-    ]);
+    };
 
-    setWorkshops([
-      { id: 'w1', start: new Date(), title: 'Next.js Deep Dive' },
-      { id: 'w2', start: new Date(), title: 'React Patterns' },
-      { id: 'w3', start: new Date(), title: 'UX Design' }
-    ]);
+    // Fetch workshops from the database (or API)
+    const fetchWorkshops = async () => {
+      try {
+        const response = await fetch('/api/workshops'); // API endpoint for workshops
+        const data = await response.json();
+        setWorkshops(data);
+      } catch (error) {
+        console.error('Error fetching workshops:', error);
+      }
+    };
+
+    fetchTransactions();
+    fetchWorkshops();
   }, []);
 
   if (!mounted) return null; // Avoid hydration error
@@ -125,9 +108,7 @@ const Earnings: React.FC = () => {
                     ${t.amount}.00
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      t.status === 'processing' ? 'bg-cyan-100 text-cyan-800' : 'bg-green-100 text-green-800'
-                    }`}>
+                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${t.status === 'processing' ? 'bg-cyan-100 text-cyan-800' : 'bg-green-100 text-green-800'}`}>
                       {t.status === 'processing' ? 'Processing' : 'Paid'}
                     </span>
                   </td>
