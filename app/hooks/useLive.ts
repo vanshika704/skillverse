@@ -1,109 +1,218 @@
-import { useState, useEffect } from "react";
-import useApi from "../services/useApi";
-export type WorkshopStatus = 'draft' | 'upcoming';
 
-export interface Workshop {
-  id: string;
+// import { useState, useCallback } from "react";
+// import useApi from "../services/useApi";
+
+// export interface LiveSession {
+//   _id?: string;
+//   title: string;
+//   description: string;
+//   startTime: string | Date;
+//   endTime: string | Date;
+//   mode: string;
+//   address?: string;
+//   maxParticipants: number;
+//   status: string;
+// }
+
+// export function useLive() {
+//   const { request } = useApi();
+
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState<string | null>(null);
+//   const [data, setData] = useState<LiveSession[] | null>(null);
+
+//   const getLives = useCallback(
+//     async (filters?: { mode?: string; status?: string }) => {
+//       setLoading(true);
+//       setError(null);
+//       try {
+//         const query = new URLSearchParams(filters as any).toString();
+//         const endpoint = `/newWorkshop${query ? `?${query}` : ""}`;
+//         const json = await request(endpoint, "GET");
+//         if (json.success) setData(json.data);
+//         else throw new Error(json.message);
+//       } catch (err: any) {
+//         setError(err.message || "Failed to fetch sessions");
+//       } finally {
+//         setLoading(false);
+//       }
+//     },
+//     [request]
+//   );
+
+//   const createLive = useCallback(
+//     async (live: LiveSession) => {
+//       setLoading(true);
+//       setError(null);
+//       try {
+//         const json = await request("/newWorkshop", "POST", live);
+//         if (!json.success) throw new Error(json.message);
+//         return json.data;
+//       } catch (err: any) {
+//         setError(err.message || "Failed to create session");
+//         throw err;
+//       } finally {
+//         setLoading(false);
+//       }
+//     },
+//     [request]
+//   );
+
+//   const updateLive = useCallback(
+//     async (id: string, updates: Partial<LiveSession>) => {
+//       setLoading(true);
+//       setError(null);
+//       try {
+//         const json = await request(`/newWorkshop?id=${id}`, "PUT", updates);
+//         if (!json.success) throw new Error(json.message);
+//         return json.data;
+//       } catch (err: any) {
+//         setError(err.message || "Failed to update session");
+//         throw err;
+//       } finally {
+//         setLoading(false);
+//       }
+//     },
+//     [request]
+//   );
+
+//   const deleteLive = useCallback(
+//     async (id: string) => {
+//       setLoading(true);
+//       setError(null);
+//       try {
+//         const json = await request(`/newWorkshop?id=${id}`, "DELETE");
+//         if (!json.success) throw new Error(json.message);
+//         return true;
+//       } catch (err: any) {
+//         setError(err.message || "Failed to delete session");
+//         throw err;
+//       } finally {
+//         setLoading(false);
+//       }
+//     },
+//     [request]
+//   );
+
+//   return {
+//     loading,
+//     error,
+//     data,
+//     getLives,
+//     createLive,
+//     updateLive,
+//     deleteLive,
+//   };
+// }
+
+import { useState, useCallback } from "react";
+import useApi from "../services/useApi";
+
+export interface LiveSession {
+  _id?: string;
   title: string;
   description: string;
-  start: Date;
-  end: Date;
-  location: 'Online' | 'In-Person' | 'Hybrid';
+  startTime: string | Date;
+  endTime: string | Date;
+  mode: string;
+  address?: string;
   maxParticipants: number;
-  registered: number;
-  status: WorkshopStatus;
+  registered?: number;
+  status: "draft" | "upcoming";
 }
 
-export type CreateWorkshopData = Omit<Workshop, 'id'>;
-
-export const useLiveWorkshops = () => {
+export function useLive() {
   const { request } = useApi();
-  const [workshops, setWorkshops] = useState<Workshop[]>([]);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<LiveSession[] | null>(null);
 
-  const fetchWorkshops = async (params = {}) => {
-    try {
+  const getLives = useCallback(
+    async (filters?: { mode?: string; status?: string }) => {
       setLoading(true);
-      const query = new URLSearchParams(params).toString();
-      const data = await request(`/workshops?${query}`);
-      setWorkshops(
-        data.map((item: any) => ({
-          ...item,
-          start: new Date(item.start),
-          end: new Date(item.end),
-        }))
-      );
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+      setError(null);
+      try {
+        const query = new URLSearchParams(filters as any).toString();
+        const endpoint = `/newWorkshop${query ? `?${query}` : ""}`;
+        const json = await request(endpoint, "GET");
+        if (json.success) {
+          setData(json.data);
+          return json.data;
+        } else {
+          throw new Error(json.message);
+        }
+      } catch (err: any) {
+        setError(err.message || "Failed to fetch sessions");
+        return [];
+      } finally {
+        setLoading(false);
+      }
+    },
+    [request]
+  );
 
-  const createWorkshop = async (data: CreateWorkshopData) => {
-    try {
+  const createLive = useCallback(
+    async (live: LiveSession) => {
       setLoading(true);
-      const response = await request("/workshops", "POST", data);
-      return response.data as Workshop;
-    } catch (err: any) {
-      throw new Error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+      setError(null);
+      try {
+        const json = await request("/newWorkshop", "POST", live);
+        if (!json.success) throw new Error(json.message);
+        return json.data;
+      } catch (err: any) {
+        setError(err.message || "Failed to create session");
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [request]
+  );
 
-  const getWorkshop = async (id: string) => {
-    try {
+  const updateLive = useCallback(
+    async (id: string, updates: Partial<LiveSession>) => {
       setLoading(true);
-      const response = await request(`/workshops/${id}`);
-      return {
-        ...response.data,
-        start: new Date(response.data.start),
-        end: new Date(response.data.end),
-      } as Workshop;
-    } catch (err: any) {
-      throw new Error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+      setError(null);
+      try {
+        const json = await request(`/newWorkshop?id=${id}`, "PUT", updates);
+        if (!json.success) throw new Error(json.message);
+        return json.data;
+      } catch (err: any) {
+        setError(err.message || "Failed to update session");
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [request]
+  );
 
-  const updateWorkshop = async (id: string, data: Partial<CreateWorkshopData>) => {
-    try {
+  const deleteLive = useCallback(
+    async (id: string) => {
       setLoading(true);
-      const response = await request(`/workshops/${id}`, "PUT", data);
-      return response.data as Workshop;
-    } catch (err: any) {
-      throw new Error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const deleteWorkshop = async (id: string) => {
-    try {
-      setLoading(true);
-      await request(`/workshops/${id}`, "DELETE");
-    } catch (err: any) {
-      throw new Error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchWorkshops();
-  }, []);
+      setError(null);
+      try {
+        const json = await request(`/newWorkshop?id=${id}`, "DELETE");
+        if (!json.success) throw new Error(json.message);
+        return true;
+      } catch (err: any) {
+        setError(err.message || "Failed to delete session");
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [request]
+  );
 
   return {
-    workshops,
     loading,
     error,
-    fetchWorkshops,
-    createWorkshop,
-    getWorkshop,
-    updateWorkshop,
-    deleteWorkshop,
+    data,
+    getLives,
+    createLive,
+    updateLive,
+    deleteLive,
   };
-};
+}

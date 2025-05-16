@@ -379,7 +379,7 @@
 //   );
 // }
 "use client"
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Views } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -388,7 +388,8 @@ import AddCourseButton from '../components/addcourse';
 import StatsBar from './statsbar';
 import WorkshopCalendar from './calender';
 import Earnings from './earnings';
-
+import MyWorkshops from './myworkshops';
+import { useLive } from '../hooks/useLive';
 type WorkshopStatus = "draft" | "upcoming";
 
 type Workshop = {
@@ -397,7 +398,7 @@ type Workshop = {
   description: string;
   start: Date;
   end: Date;
-  location: string;
+ mode: string;
   maxParticipants: number;
   registered: number;
   status: WorkshopStatus;
@@ -448,7 +449,7 @@ export default function OfferskillsPage() {
 
   const [feedbackFilter, setFeedbackFilter] = useState('all');
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
-
+  const { getLives } = useLive();
   const colors = {
     primary: '#06b6d4',
     primaryLight: '#e0f2fe',
@@ -469,6 +470,24 @@ export default function OfferskillsPage() {
     completed: { bg: '#dcfce7', text: '#166534' },
     cancelled: { bg: '#fee2e2', text: '#991b1b' }
   };
+useEffect(() => {
+  const fetch = async () => {
+    const lives = await getLives(); // Now returns the data
+    const mapped = lives.map((live: { _id: any; title: any; description: any; startTime: string | number | Date; endTime: string | number | Date; mode: any; maxParticipants: any; registered: any; status: any; }) => ({
+      id: live._id!,
+      title: live.title,
+      description: live.description,
+      start: new Date(live.startTime),
+      end: new Date(live.endTime),
+      mode: live.mode,
+      maxParticipants: live.maxParticipants,
+      registered: live.registered || 0,
+      status: live.status,
+    }));
+    setWorkshops(mapped);
+  };
+  fetch();
+}, []);
 
   const transactionStatusColors = {
     processing: { bg: colors.primaryLight, text: colors.primaryDark },
@@ -592,6 +611,7 @@ export default function OfferskillsPage() {
     ));
   };
 
+ 
   return (
     <div className='flex min-h-screen bg-gray-50'>
       <Sidebar />
@@ -635,11 +655,7 @@ export default function OfferskillsPage() {
             )}
 
             {activeTab === 'workshops' && (
-              <WorkshopCalendar
-                workshops={workshops}
-                onAddWorkshop={handleAddWorkshop}
-                onUpdateWorkshop={handleUpdateWorkshop}
-              />
+        <MyWorkshops/>
             )}
 
             {activeTab === 'feedback' && (

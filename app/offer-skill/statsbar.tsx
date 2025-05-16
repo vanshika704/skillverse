@@ -6,7 +6,7 @@ type Workshop = {
   description: string;
   start: Date;
   end: Date;
-  location: string;
+mode: string;
   maxParticipants: number;
   registered: number;
   status: string;
@@ -27,7 +27,7 @@ function StatsBar({ workshops, feedback }: StatsBarProps) {
     description: '',
     start: new Date(),
     end: new Date(new Date().setHours(new Date().getHours() + 2)),
-    location: 'Online',
+    mode: 'Online',
     maxParticipants: 10,
     registered: 0,
     status: 'draft'

@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
 import moment from "moment";
 import { momentLocalizer, Views } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -7,22 +8,29 @@ import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
 import dynamic from "next/dynamic";
 import AddEventModal from "./addeventmodal";
 import ScheduleNew from "./schedulenew";
+import { LiveSession, useLive } from "../hooks/useLive";
 
 const localizer = momentLocalizer(moment);
 
 type WorkshopStatus = "draft" | "upcoming";
 
-type Workshop = {
+interface Workshop {
   id: string;
   title: string;
   description: string;
   start: Date;
   end: Date;
-  location: string;
+  mode: string;
   maxParticipants: number;
   registered: number;
   status: WorkshopStatus;
-};
+}
+
+interface WorkshopCalendarProps {
+  workshops: Workshop[];
+  onAddWorkshop: (workshop: Workshop) => void;
+  onUpdateWorkshop: (updatedWorkshop: Workshop) => void;
+}
 
 const Calendar = dynamic(
   () => import("react-big-calendar").then((mod) => mod.Calendar),
@@ -32,46 +40,45 @@ const Calendar = dynamic(
   }
 );
 
-function WorkshopCalendar({ 
+const WorkshopCalendar: React.FC<WorkshopCalendarProps> = ({ 
   workshops, 
-  onAddWorkshop,
+  onAddWorkshop, 
   onUpdateWorkshop 
-}: { 
-  workshops: Workshop[];
-  onAddWorkshop: (workshop: Workshop) => void;
-  onUpdateWorkshop: (workshop: Workshop) => void;
-}) {
+}) => {
   const [selectedWorkshop, setSelectedWorkshop] = useState<Workshop | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [view, setView] = useState(Views.MONTH);
-  const [date, setDate] = useState(new Date());
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [view, setView] = useState(Views.MONTH);
+  const [date, setDate] = useState(new Date());
 
+  const handleDeleteWorkshop = async () => {
+    if (!selectedWorkshop) return;
+    if (window.confirm("Are you sure you want to delete this workshop?")) {
+      try {
+        await onUpdateWorkshop(selectedWorkshop);
+        setIsEditModalOpen(false);
+      } catch (err) {
+        console.error("Error deleting workshop:", err);
+      }
+    }
+  };
 
-const handleUpdateWorkshop = (e: React.FormEvent) => {
+  const handleUpdateWorkshop = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedWorkshop) return;
-    onUpdateWorkshop(selectedWorkshop);
-    setIsEditModalOpen(false);
-  };
-  const handleAddWorkshop = (newWorkshop: Workshop) => {
-    // Call the onAddWorkshop passed from the parent to update the state
-    onAddWorkshop(newWorkshop);
+    try {
+      await onUpdateWorkshop(selectedWorkshop);
+      setIsEditModalOpen(false);
+    } catch (err) {
+      console.error("Error updating workshop:", err);
+    }
   };
 
   const CustomToolbar = (toolbar: any) => {
-    const goToBack = () => {
-      toolbar.onNavigate("PREV");
-    };
-
-    const goToNext = () => {
-      toolbar.onNavigate("NEXT");
-    };
-
-    const goToCurrent = () => {
-      toolbar.onNavigate("TODAY");
-    };
+    const goToBack = () => toolbar.onNavigate("PREV");
+    const goToNext = () => toolbar.onNavigate("NEXT");
+    const goToCurrent = () => toolbar.onNavigate("TODAY");
 
     const changeView = (view: any) => {
       toolbar.onView(view);
@@ -81,78 +88,61 @@ const handleUpdateWorkshop = (e: React.FormEvent) => {
     return (
       <div className="rbc-toolbar">
         <span className="rbc-btn-group">
-          <button type="button" onClick={goToBack}>
-            <FiArrowLeft />
-          </button>
-          <button type="button" onClick={goToCurrent}>
-            Today
-          </button>
-          <button type="button" onClick={goToNext}>
-            <FiArrowRight />
-          </button>
+          <button onClick={goToBack}><FiArrowLeft /></button>
+          <button onClick={goToCurrent}>Today</button>
+          <button onClick={goToNext}><FiArrowRight /></button>
         </span>
-
         <span className="rbc-toolbar-label">{toolbar.label}</span>
-
         <span className="rbc-btn-group">
-          <button
-            type="button"
-            className={toolbar.view === Views.MONTH ? "rbc-active" : ""}
-            onClick={() => changeView(Views.MONTH)}
-          >
-            Month
-          </button>
-          <button
-            type="button"
-            className={toolbar.view === Views.WEEK ? "rbc-active" : ""}
-            onClick={() => changeView(Views.WEEK)}
-          >
-            Week
-          </button>
-          <button
-            type="button"
-            className={toolbar.view === Views.DAY ? "rbc-active" : ""}
-            onClick={() => changeView(Views.DAY)}
-          >
-            Day
-          </button>
+          <button onClick={() => changeView(Views.MONTH)} className={toolbar.view === Views.MONTH ? "rbc-active" : ""}>Month</button>
+          <button onClick={() => changeView(Views.WEEK)} className={toolbar.view === Views.WEEK ? "rbc-active" : ""}>Week</button>
+          <button onClick={() => changeView(Views.DAY)} className={toolbar.view === Views.DAY ? "rbc-active" : ""}>Day</button>
         </span>
       </div>
     );
   };
 
   return (
-    <div className="bg-white flex rounded-xl shadow-xl p-6 max-w-full overflow-hidden">
-      <ScheduleNew onAddWorkshop={handleAddWorkshop} />
-      <div className="ml-10">
-        <h3 className="text-2xl font-semibold mb-6 text-cyan-900">
-          Workshop Calendar
-        </h3>
-
-        <div className="h-[700px] overflow-auto">
+    <div className="bg-white flex rounded-xl shadow-xl p-6 max-w-screen overflow-hidden">
+      <ScheduleNew onAddWorkshop={onAddWorkshop} />
+      <div className="ml-10 w-full">
+        <h3 className="text-2xl font-semibold mb-6 text-cyan-900">Workshop Calendar</h3>
+        
+        <div className="h-[600px] overflow-auto">
           <Calendar
             localizer={localizer}
-            events={workshops}
-            style={{ height: "100%" }}
-            defaultView={Views.MONTH}
-            views={[Views.MONTH, Views.WEEK, Views.DAY]}
+            events={workshops.map((ws) => ({
+              ...ws,
+              start: new Date(ws.start),
+              end: new Date(ws.end),
+              id: ws.id,
+            }))}
             view={view}
             date={date}
             onNavigate={setDate}
-            selectable={true}
-            onSelectEvent={(event: object) => {
-              const workshopEvent = event as Workshop;  // Explicitly cast to Workshop type
-              setSelectedWorkshop(workshopEvent);
-              setIsEditModalOpen(true);
-            }}
+            defaultView={Views.MONTH}
+            views={[Views.MONTH, Views.WEEK, Views.DAY]}
+            selectable
+            // onSelectEvent={(event: Workshop) => {
+            //   setSelectedWorkshop(event);
+            //   setIsEditModalOpen(true);
+            // }}
+            onSelectEvent={(event: object, e: React.SyntheticEvent<HTMLElement, Event>) => {
+  const workshop = event as Workshop;
+  setSelectedWorkshop({
+    ...workshop,
+    // If your data keys are different, map them here:
+    id: (workshop as any)._id || workshop.id,
+    start: new Date((workshop as any).startTime || workshop.start),
+    end: new Date((workshop as any).endTime || workshop.end),
+  });
+  setIsEditModalOpen(true);
+}}
             onSelectSlot={(slotInfo) => {
               setSelectedDate(slotInfo.start);
               setIsAddModalOpen(true);
             }}
-            components={{
-              toolbar: CustomToolbar,
-            }}
-            // eventPropGetter={eventStyleGetter}
+            components={{ toolbar: CustomToolbar }}
           />
         </div>
       </div>
@@ -161,188 +151,77 @@ const handleUpdateWorkshop = (e: React.FormEvent) => {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         selectedDate={selectedDate}
-        onAddWorkshop={handleAddWorkshop}
+        onAddWorkshop={onAddWorkshop}
       />
 
       {isEditModalOpen && selectedWorkshop && (
-        <div className="fixed inset-0 bg-neutral-900/90 bg-opacity-50 flex items-center justify-center z-50">
-       <div className="bg-white p-6 rounded-lg w-96 max-w-[90vw] max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-96 max-w-[90vw] max-h-[90vh] overflow-y-auto relative">
+            <button
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+              onClick={() => setIsEditModalOpen(false)}
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
             <h3 className="text-xl font-semibold mb-4">Edit Workshop</h3>
             <form onSubmit={handleUpdateWorkshop} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Title</label>
-              <input
-                  type="text"
-                  className="w-full px-4 py-2 border rounded-lg"
-                  value={selectedWorkshop.title}
-                  onChange={(e) =>
-                    setSelectedWorkshop({
-                      ...selectedWorkshop,
-                      title: e.target.value,
-                    })
-                  }
-                  required
-                />
-              </div>
+              <input type="text" className="w-full px-4 py-2 border rounded-lg" placeholder="Title"
+                value={selectedWorkshop.title}
+                onChange={(e) => setSelectedWorkshop({ ...selectedWorkshop, title: e.target.value })}
+                required
+              />
+              <textarea className="w-full px-4 py-2 border rounded-lg" rows={3} placeholder="Description"
+                value={selectedWorkshop.description}
+                onChange={(e) => setSelectedWorkshop({ ...selectedWorkshop, description: e.target.value })}
+              />
+              <input type="datetime-local" className="w-full px-4 py-2 border rounded-lg"
+                value={moment(selectedWorkshop.start).format("YYYY-MM-DDTHH:mm")}
+                onChange={(e) => setSelectedWorkshop({ ...selectedWorkshop, start: new Date(e.target.value) })}
+                required
+              />
+              <input type="datetime-local" className="w-full px-4 py-2 border rounded-lg"
+                value={moment(selectedWorkshop.end).format("YYYY-MM-DDTHH:mm")}
+                onChange={(e) => setSelectedWorkshop({ ...selectedWorkshop, end: new Date(e.target.value) })}
+                required
+              />
+              <select className="w-full px-4 py-2 border rounded-lg"
+                value={selectedWorkshop.mode}
+                onChange={(e) => setSelectedWorkshop({ ...selectedWorkshop, mode: e.target.value })}
+              >
+                <option value="Online">Online</option>
+                <option value="In-Person">In-Person</option>
+                <option value="Hybrid">Hybrid</option>
+              </select>
+              <input type="number" className="w-full px-4 py-2 border rounded-lg" placeholder="Max Participants"
+                value={selectedWorkshop.maxParticipants}
+                onChange={(e) => setSelectedWorkshop({ ...selectedWorkshop, maxParticipants: Number(e.target.value) })}
+                min={1}
+              />
+              <select className="w-full px-4 py-2 border rounded-lg"
+                value={selectedWorkshop.status}
+                onChange={(e) => setSelectedWorkshop({ ...selectedWorkshop, status: e.target.value as WorkshopStatus })}
+              >
+                <option value="draft">Draft</option>
+                <option value="upcoming">Upcoming</option>
+              </select>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Description
-                </label>
-                <textarea
-                  className="w-full px-4 py-2 border rounded-lg"
-                  value={selectedWorkshop.description}
-                  onChange={(e) =>
-                    setSelectedWorkshop({
-                      ...selectedWorkshop,
-                      description: e.target.value,
-                    })
-                  }
-                  rows={4}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Start Time
-                  </label>
-                  <input
-                    type="datetime-local"
-                    className="w-full px-4 py-2 border rounded-lg"
-                    value={moment(selectedWorkshop.start).format(
-                      "YYYY-MM-DDTHH:mm"
-                    )}
-                    onChange={(e) =>
-                      setSelectedWorkshop({
-                        ...selectedWorkshop,
-                        start: new Date(e.target.value),
-                      })
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    End Time
-                  </label>
-                  <input
-                    type="datetime-local"
-                    className="w-full px-4 py-2 border rounded-lg"
-                    value={moment(selectedWorkshop.end).format(
-                      "YYYY-MM-DDTHH:mm"
-                    )}
-                    onChange={(e) =>
-                      setSelectedWorkshop({
-                        ...selectedWorkshop,
-                        end: new Date(e.target.value),
-                      })
-                    }
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Location
-                </label>
-                <select
-                  className="w-full px-4 py-2 border rounded-lg"
-                  value={selectedWorkshop.location}
-                  onChange={(e) =>
-                    setSelectedWorkshop({
-                      ...selectedWorkshop,
-                      location: e.target.value,
-                    })
-                  }
-                >
-                  <option value="Online">Online</option>
-                  <option value="In-Person">In-Person</option>
-                  <option value="Hybrid">Hybrid</option>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Max Participants
-                  </label>
-                  <input
-                    type="number"
-                    className="w-full px-4 py-2 border rounded-lg"
-                    value={selectedWorkshop.maxParticipants}
-                    onChange={(e) =>
-                      setSelectedWorkshop({
-                        ...selectedWorkshop,
-                        maxParticipants: Number(e.target.value),
-                      })
-                    }
-                    min="1"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Registered
-                  </label>
-                  <input
-                    type="number"
-                    className="w-full px-4 py-2 border rounded-lg"
-                    value={selectedWorkshop.registered}
-                    onChange={(e) =>
-                      setSelectedWorkshop({
-                        ...selectedWorkshop,
-                        registered: Number(e.target.value),
-                      })
-                    }
-                    min="0"
-                    max={selectedWorkshop.maxParticipants}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Status</label>
-                <select
-                  className="w-full px-4 py-2 border rounded-lg"
-                  value={selectedWorkshop.status}
-                  onChange={(e) =>
-                    setSelectedWorkshop({
-                      ...selectedWorkshop,
-                      status: e.target.value as WorkshopStatus,
-                    })
-                  }
-                >
-                  <option value="draft">Draft</option>
-                  <option value="upcoming">Upcoming</option>
-                </select>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-4">
-                <button
-                  type="button"
-                  className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
-                  onClick={() => setIsEditModalOpen(false)}
-                >
-                  Cancel
+              <div className="flex justify-between pt-4">
+                <button type="button" className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700" onClick={handleDeleteWorkshop}>
+                  Delete
                 </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors"
-                >
-                  Save Changes
+                <button type="submit" className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700">
+                  Save
                 </button>
               </div>
             </form>
           </div>
         </div>
-      
       )}
     </div>
   );
-}
+};
 
 export default WorkshopCalendar;
-
-
-
