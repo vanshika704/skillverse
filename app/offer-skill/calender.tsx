@@ -1,6 +1,4 @@
-
-
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import moment from "moment";
 import { momentLocalizer, Views } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -8,7 +6,7 @@ import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
 import dynamic from "next/dynamic";
 import AddEventModal from "./addeventmodal";
 import ScheduleNew from "./schedulenew";
-import { LiveSession, useLive } from "../hooks/useLive";
+import { useLive } from "../hooks/useLive";
 
 const localizer = momentLocalizer(moment);
 
@@ -40,11 +38,7 @@ const Calendar = dynamic(
   }
 );
 
-const WorkshopCalendar: React.FC<WorkshopCalendarProps> = ({ 
-  workshops, 
-  onAddWorkshop, 
-  onUpdateWorkshop 
-}) => {
+const WorkshopCalendar: React.FC<WorkshopCalendarProps> = ({ workshops, onAddWorkshop, onUpdateWorkshop }) => {
   const [selectedWorkshop, setSelectedWorkshop] = useState<Workshop | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -52,11 +46,14 @@ const WorkshopCalendar: React.FC<WorkshopCalendarProps> = ({
   const [view, setView] = useState(Views.MONTH);
   const [date, setDate] = useState(new Date());
 
+  const { updateLive, deleteLive } = useLive();
+
   const handleDeleteWorkshop = async () => {
     if (!selectedWorkshop) return;
     if (window.confirm("Are you sure you want to delete this workshop?")) {
       try {
-        await onUpdateWorkshop(selectedWorkshop);
+        await deleteLive(selectedWorkshop.id);
+        onUpdateWorkshop({ ...selectedWorkshop, status: "draft" });
         setIsEditModalOpen(false);
       } catch (err) {
         console.error("Error deleting workshop:", err);
@@ -68,7 +65,16 @@ const WorkshopCalendar: React.FC<WorkshopCalendarProps> = ({
     e.preventDefault();
     if (!selectedWorkshop) return;
     try {
-      await onUpdateWorkshop(selectedWorkshop);
+      await updateLive(selectedWorkshop.id, {
+        title: selectedWorkshop.title,
+        description: selectedWorkshop.description,
+        startTime: selectedWorkshop.start,
+        endTime: selectedWorkshop.end,
+        mode: selectedWorkshop.mode,
+        maxParticipants: selectedWorkshop.maxParticipants,
+        status: selectedWorkshop.status,
+      });
+      onUpdateWorkshop(selectedWorkshop);
       setIsEditModalOpen(false);
     } catch (err) {
       console.error("Error updating workshop:", err);
@@ -107,7 +113,6 @@ const WorkshopCalendar: React.FC<WorkshopCalendarProps> = ({
       <ScheduleNew onAddWorkshop={onAddWorkshop} />
       <div className="ml-10 w-full">
         <h3 className="text-2xl font-semibold mb-6 text-cyan-900">Workshop Calendar</h3>
-        
         <div className="h-[600px] overflow-auto">
           <Calendar
             localizer={localizer}
@@ -123,21 +128,16 @@ const WorkshopCalendar: React.FC<WorkshopCalendarProps> = ({
             defaultView={Views.MONTH}
             views={[Views.MONTH, Views.WEEK, Views.DAY]}
             selectable
-            // onSelectEvent={(event: Workshop) => {
-            //   setSelectedWorkshop(event);
-            //   setIsEditModalOpen(true);
-            // }}
-            onSelectEvent={(event: object, e: React.SyntheticEvent<HTMLElement, Event>) => {
-  const workshop = event as Workshop;
-  setSelectedWorkshop({
-    ...workshop,
-    // If your data keys are different, map them here:
-    id: (workshop as any)._id || workshop.id,
-    start: new Date((workshop as any).startTime || workshop.start),
-    end: new Date((workshop as any).endTime || workshop.end),
-  });
-  setIsEditModalOpen(true);
-}}
+            onSelectEvent={(event) => {
+              const workshop = event as Workshop;
+              setSelectedWorkshop({
+                ...workshop,
+                id: (workshop as any)._id || workshop.id,
+                start: new Date((workshop as any).startTime || workshop.start),
+                end: new Date((workshop as any).endTime || workshop.end),
+              });
+              setIsEditModalOpen(true);
+            }}
             onSelectSlot={(slotInfo) => {
               setSelectedDate(slotInfo.start);
               setIsAddModalOpen(true);
@@ -155,7 +155,7 @@ const WorkshopCalendar: React.FC<WorkshopCalendarProps> = ({
       />
 
       {isEditModalOpen && selectedWorkshop && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-neutral-900/90 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-96 max-w-[90vw] max-h-[90vh] overflow-y-auto relative">
             <button
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
@@ -209,7 +209,7 @@ const WorkshopCalendar: React.FC<WorkshopCalendarProps> = ({
               </select>
 
               <div className="flex justify-between pt-4">
-                <button type="button" className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700" onClick={handleDeleteWorkshop}>
+                <button type="button" className="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700" onClick={handleDeleteWorkshop}>
                   Delete
                 </button>
                 <button type="submit" className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700">
