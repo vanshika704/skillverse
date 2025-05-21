@@ -7,6 +7,8 @@ import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { useRouter } from 'next/navigation';
 import UserName from '../offer-skill/username';
 
+
+
 function SkillverseDashboard() {
   const [currentCourseIndex, setCurrentCourseIndex] = useState(0);
   const [progress, setProgress] = useState(0);

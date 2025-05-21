@@ -1,16 +1,15 @@
 
-
-
-
 import React, { useState, useEffect } from "react";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
 import toast from "react-hot-toast";
 import { useLive } from "../hooks/useLive";
+import { getUserId } from "../hooks/useUser";
 
 type WorkshopStatus = "draft" | "upcoming";
 
 type Workshop = {
+  User: string;
   id: string;
   title: string;
   description: string;
@@ -54,7 +53,6 @@ const AddEventModal: React.FC<Props> = ({ isOpen, onClose, selectedDate, onAddWo
     }
   }, [selectedDate]);
 
-  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -71,7 +69,14 @@ const AddEventModal: React.FC<Props> = ({ isOpen, onClose, selectedDate, onAddWo
     const start = moment(`${moment(selectedDate).format("YYYY-MM-DD")}T${formData.startTime}`).toDate();
     const end = moment(`${moment(selectedDate).format("YYYY-MM-DD")}T${formData.endTime}`).toDate();
 
+    const userId = getUserId();
+    if (!userId) {
+      toast.error("User not authenticated");
+      return;
+    }
+
     const newWorkshop: Workshop = {
+      User: userId,
       id: uuidv4(),
       title: formData.title,
       description: formData.description,
@@ -84,10 +89,12 @@ const AddEventModal: React.FC<Props> = ({ isOpen, onClose, selectedDate, onAddWo
     };
 
     const workshopData = {
+      _id: newWorkshop.id,
+      User: newWorkshop.User,
       title: newWorkshop.title,
       description: newWorkshop.description,
-      startTime: newWorkshop.start,
-      endTime: newWorkshop.end,
+      startTime: newWorkshop.start.toISOString(),
+      endTime: newWorkshop.end.toISOString(),
       mode: newWorkshop.mode,
       maxParticipants: newWorkshop.maxParticipants,
       status: newWorkshop.status,

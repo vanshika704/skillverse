@@ -62,24 +62,24 @@ const WorkshopCalendar: React.FC<WorkshopCalendarProps> = ({ workshops, onAddWor
   };
 
   const handleUpdateWorkshop = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedWorkshop) return;
-    try {
-      await updateLive(selectedWorkshop.id, {
-        title: selectedWorkshop.title,
-        description: selectedWorkshop.description,
-        startTime: selectedWorkshop.start,
-        endTime: selectedWorkshop.end,
-        mode: selectedWorkshop.mode,
-        maxParticipants: selectedWorkshop.maxParticipants,
-        status: selectedWorkshop.status,
-      });
-      onUpdateWorkshop(selectedWorkshop);
-      setIsEditModalOpen(false);
-    } catch (err) {
-      console.error("Error updating workshop:", err);
-    }
-  };
+  e.preventDefault();
+  if (!selectedWorkshop) return;
+  try {
+    await updateLive(selectedWorkshop.id, {
+      title: selectedWorkshop.title,
+      description: selectedWorkshop.description,
+      startTime: selectedWorkshop.start,
+      endTime: selectedWorkshop.end,
+      mode: selectedWorkshop.mode,
+      maxParticipants: selectedWorkshop.maxParticipants,
+      status: selectedWorkshop.status,
+    });
+    onUpdateWorkshop(selectedWorkshop);
+    setIsEditModalOpen(false);
+  } catch (err) {
+    console.error("Error updating workshop:", err);
+  }
+};
 
   const CustomToolbar = (toolbar: any) => {
     const goToBack = () => toolbar.onNavigate("PREV");

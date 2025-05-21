@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { v4 as uuidv4 } from 'uuid';
 
 
 interface ICourse extends mongoose.Document {
@@ -19,10 +18,7 @@ interface ICourse extends mongoose.Document {
 }
 
 const CourseSchema = new mongoose.Schema<ICourse>(
-  { _id: {
-    type: String, // Must be String if you're using UUIDs
-    default: () => uuidv4(), // If you use UUID auto-gen
-  },
+  {
     title: { type: String, required: true },
     description: { type: String, required: true },
     date: { type: String, required: true },

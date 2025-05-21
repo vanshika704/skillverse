@@ -64,23 +64,25 @@ export function useLive() {
     [request]
   );
 
-  const updateLive = useCallback(
-    async (id: string, updates: Partial<LiveSession>) => {
-      setLoading(true);
-      setError(null);
-      try {
-        const json = await request(`/newWorkshop?id=${id}`, "PUT", updates);
-        if (!json.success) throw new Error(json.message);
-        return json.data;
-      } catch (err: any) {
-        setError(err.message || "Failed to update session");
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [request]
-  );
+const updateLive = useCallback(
+  async (id: string, updates: Partial<LiveSession>) => {
+    setLoading(true);
+    setError(null);
+    try {
+      // no leading /api here if request adds it automatically
+      const json = await request(`/newWorkshop?id=${id}`, "PUT", updates);
+      if (!json.success) throw new Error(json.message);
+      return json.data;
+    } catch (err: any) {
+      setError(err.message || "Failed to update session");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  },
+  [request]
+);
+
 
   const deleteLive = useCallback(
     async (id: string) => {
