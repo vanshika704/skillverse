@@ -1,10 +1,12 @@
-import { NextResponse } from 'next/server';
-import Course from '../../models/Workshop';
-import { connectToDB } from '@/app/config/db';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+// courses to be shown in the feed and community 
 
-interface CourseData {
+import { NextResponse } from 'next/server'; //  nextresponse api is used 
+import Course from '../../models/Workshop'; // course model is imported from models folder
+import { connectToDB } from '@/app/config/db';// database connection is imported from config folder
+import { writeFile, mkdir } from 'fs/promises';// file system is imported from fs/promises
+import path from 'path';
+// coursses creating and getting paths 
+interface CourseData { // prop validation for these 
   title: string;
   description: string;
   creator: string;
@@ -18,16 +20,16 @@ interface CourseData {
 }
 
 // GET all courses
-export async function GET(request: Request) {
+export async function GET(request: Request) { // get call is made to this function, request is passed as nextrequest 
   try {
-    await connectToDB();
-    const { searchParams } = new URL(request.url);
+    await connectToDB(); // connect to db is called 
+    const { searchParams } = new URL(request.url); // using url to get query parameters 
 
-    const filter: Record<string, any> = {};
+    const filter: Record<string, any> = {}; // a custom filter is created to get items by paid or creator 
     if (searchParams.get('creator')) filter.creator = searchParams.get('creator');
     if (searchParams.get('isPaid')) filter.isPaid = searchParams.get('isPaid') === 'true';
 
-    const courses = await Course.find(filter).sort({ createdAt: -1 });
+    const courses = await Course.find(filter).sort({ createdAt: -1 }); //  returns list of courses
     return NextResponse.json({ success: true, data: courses });
   } catch (error) {
     return NextResponse.json({ success: false, message: 'Server error' }, { status: 500 });
@@ -35,16 +37,16 @@ export async function GET(request: Request) {
 }
 
 // POST new course
-export async function POST(request: Request) {
+export async function POST(request: Request) { // post request is made using this function, request is passed as nextrequest
   try {
-    const contentType = request.headers.get('content-type');
+    const contentType = request.headers.get('content-type'); // getting content type of the request
     if (!contentType?.includes('multipart/form-data')) {
       return NextResponse.json({ success: false, message: 'Invalid content type' }, { status: 400 });
     }
 
     await connectToDB();
     const formData = await request.formData();
-
+// getting data from form data
     // File handling
     const file = formData.get('coverImage') as File | null;
     let fileUrl = '';
@@ -130,7 +132,7 @@ export async function DELETE(request: Request) {
 
     if (!id) return NextResponse.json({ success: false, message: 'Missing ID' }, { status: 400 });
 
-    const deleted = await Course.deleteOne({ _id: id });
+    const deleted = await Course.deleteOne({ _id: id });// course .deleteone ({id: id});
 
     if (deleted.deletedCount === 0) {
       return NextResponse.json({ success: false, message: 'Course not found' }, { status: 404 });

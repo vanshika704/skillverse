@@ -1,5 +1,5 @@
 import { connectToDB } from '@/app/config/db';
-import { Live } from '@/app/models/Live';
+import { Live } from '@/app/models/Live'; // import live model 
 
 export async function GET(request: Request) {
   await connectToDB();
@@ -84,11 +84,51 @@ export async function POST(request: Request) {
   }
 }
 
+// export async function DELETE(request: Request) {
+//   await connectToDB();
+//   try {
+//     const url = new URL(request.url);
+//     const id = url.searchParams.get('id');
+
+//     if (!id) {
+//       return new Response(
+//         JSON.stringify({ success: false, message: 'Missing or invalid ID' }),
+//         { status: 400, headers: { 'Content-Type': 'application/json' } }
+//       );
+//     }
+
+//     const deleted = await Live.findByIdAndDelete(id);
+
+//     if (!deleted) {
+//       return new Response(
+//         JSON.stringify({ success: false, message: 'Live session not found' }),
+//         { status: 404, headers: { 'Content-Type': 'application/json' } }
+//       );
+//     }
+
+//     return new Response(
+//       JSON.stringify({ success: true, message: 'Live session deleted' }),
+//       { status: 200, headers: { 'Content-Type': 'application/json' } }
+//     );
+//   } catch (error) {
+//     console.error('DELETE error:', error);
+//     return new Response(
+//       JSON.stringify({ success: false, message: 'Error deleting live session' }),
+//       { status: 500, headers: { 'Content-Type': 'application/json' } }
+//     );
+//   }
+// }
+
+
+
 export async function DELETE(request: Request) {
   await connectToDB();
+
   try {
     const url = new URL(request.url);
     const id = url.searchParams.get('id');
+
+    console.log('DELETE request with id:', id);
 
     if (!id) {
       return new Response(
@@ -97,7 +137,8 @@ export async function DELETE(request: Request) {
       );
     }
 
-    const deleted = await Live.findByIdAndDelete(id);
+    // Use findOneAndDelete for UUIDs (string _id)
+    const deleted = await Live.findOneAndDelete({ _id: id });
 
     if (!deleted) {
       return new Response(
