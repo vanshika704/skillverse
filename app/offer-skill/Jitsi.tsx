@@ -1,38 +1,34 @@
 'use client';
+import { JitsiMeeting } from '@jitsi/react-sdk';
+import React from 'react';
 
-import { useEffect, useRef } from 'react';
-
-type Props = {
+type JitsiMeetProps = {
   roomName: string;
 };
 
-const JitsiMeet = ({ roomName }: Props) => {
-  const jitsiContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || !roomName) return;
-
-    const domain = 'meet.jit.si';
-    const options = {
-      roomName,
-      parentNode: jitsiContainerRef.current,
-      width: '100%',
-      height: 600,
-      configOverwrite: {},
-      interfaceConfigOverwrite: {
-        SHOW_JITSI_WATERMARK: false,
-        SHOW_CHROME_EXTENSION_BANNER: false,
-        DEFAULT_REMOTE_DISPLAY_NAME: 'Guest',
-        TOOLBAR_BUTTONS: ['microphone', 'camera', 'hangup', 'chat'],
-      },
-    };
-
-    const api = new (window as any).JitsiMeetExternalAPI(domain, options);
-
-    return () => api?.dispose?.();
-  }, [roomName]);
-
-  return <div ref={jitsiContainerRef} className="rounded-xl overflow-hidden shadow-lg" />;
+const JitsiMeet: React.FC<JitsiMeetProps> = ({ roomName }) => {
+  return (
+    <div style={{ height: '90vh', width: '100%' }}>
+      <JitsiMeeting
+        roomName={roomName}
+        configOverwrite={{
+          startWithAudioMuted: false,
+          disableModeratorIndicator: false,
+        }}
+        interfaceConfigOverwrite={{
+          SHOW_JITSI_WATERMARK: false,
+        }}
+        userInfo={{
+          displayName: 'Host',
+          email: 'sharmavanshi704@gmail.com', // ✅ Required field
+        }}
+        getIFrameRef={(node) => {
+          node?.style.setProperty('height', '100%');
+          node?.style.setProperty('width', '100%');
+        }}
+      />
+    </div>
+  );
 };
 
 export default JitsiMeet;
