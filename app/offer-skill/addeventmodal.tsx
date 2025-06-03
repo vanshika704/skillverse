@@ -293,11 +293,14 @@ const AddEventModal: React.FC<Props> = ({ isOpen, onClose, onAddWorkshop }) => {
 
     if (type === "checkbox") {
       val = (e.target as HTMLInputElement).checked;
-    } else if (name === "maxParticipants") {
-      val = Math.max(1, Number(value));
-    } else if (name === "price") {
-      val = Math.max(0, Number(value));
-    } else if (name === "mode") {
+    }else if (name === "maxParticipants") {
+  const num = Number(value);
+  val = isNaN(num) ? 1 : Math.max(1, num);
+} else if (name === "price") {
+  const num = Number(value);
+  val = isNaN(num) ? 0 : Math.max(0, num);
+}
+ else if (name === "mode") {
       val = value.toLowerCase();
       // Normalize "hybrid" option if you want to keep it
       if (!["online", "offline", "hybrid"].includes(val)) {

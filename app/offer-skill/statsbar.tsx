@@ -6,7 +6,7 @@ type Workshop = {
   description: string;
   start: Date;
   end: Date;
-mode: string;
+  mode: string;
   maxParticipants: number;
   registered: number;
   status: string;
@@ -33,49 +33,53 @@ function StatsBar({ workshops, feedback }: StatsBarProps) {
     status: 'draft'
   });
 
+  const totalParticipants = workshops.reduce(
+    (sum, w) => sum + (typeof w.registered === 'number' ? w.registered : 0),
+    0
+  );
+
+  const avgRating =
+    feedback.length > 0
+      ? (
+          feedback.reduce((sum, f) => sum + (typeof f.rating === 'number' ? f.rating : 0), 0) /
+          feedback.length
+        ).toFixed(1)
+      : '0.0';
+
   return (
-    <>
-      {/* Stats Bar */}
-      <div className="bg-white px-6 py-4 shadow-sm">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gradient-to-br from-cyan-50 to-white p-4 rounded-xl border border-cyan-100 flex items-center">
-            <div className="bg-cyan-100 p-3 rounded-lg mr-4">
-              <FiCalendar className="text-cyan-600 text-xl" />
-            </div>
-            <div>
-              <p className="text-sm text-cyan-800">Workshops Hosted</p>
-              <p className="text-2xl font-bold text-cyan-900">{workshops.length}</p>
-            </div>
+    <div className="bg-white px-6 py-4 shadow-sm">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-gradient-to-br from-cyan-50 to-white p-4 rounded-xl border border-cyan-100 flex items-center">
+          <div className="bg-cyan-100 p-3 rounded-lg mr-4">
+            <FiCalendar className="text-cyan-600 text-xl" />
           </div>
-
-          <div className="bg-gradient-to-br from-cyan-50 to-white p-4 rounded-xl border border-cyan-100 flex items-center">
-            <div className="bg-cyan-100 p-3 rounded-lg mr-4">
-              <FiUsers className="text-cyan-600 text-xl" />
-            </div>
-            <div>
-              <p className="text-sm text-cyan-800">Participants</p>
-              <p className="text-2xl font-bold text-cyan-900">
-                {workshops.reduce((sum, w) => sum + w.registered, 0)}
-              </p>
-            </div>
+          <div>
+            <p className="text-sm text-cyan-800">Workshops Hosted</p>
+            <p className="text-2xl font-bold text-cyan-900">{workshops.length}</p>
           </div>
+        </div>
 
-          <div className="bg-gradient-to-br from-cyan-50 to-white p-4 rounded-xl border border-cyan-100 flex items-center">
-            <div className="bg-cyan-100 p-3 rounded-lg mr-4">
-              <FiStar className="text-cyan-600 text-xl" />
-            </div>
-            <div>
-              <p className="text-sm text-cyan-800">Avg. Rating</p>
-              <p className="text-2xl font-bold text-cyan-900">
-                {feedback.length > 0
-                  ? (feedback.reduce((sum, f) => sum + f.rating, 0) / feedback.length).toFixed(1)
-                  : '0.0'} ★
-              </p>
-            </div>
+        <div className="bg-gradient-to-br from-cyan-50 to-white p-4 rounded-xl border border-cyan-100 flex items-center">
+          <div className="bg-cyan-100 p-3 rounded-lg mr-4">
+            <FiUsers className="text-cyan-600 text-xl" />
+          </div>
+          <div>
+            <p className="text-sm text-cyan-800">Participants</p>
+            <p className="text-2xl font-bold text-cyan-900">{totalParticipants}</p>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-cyan-50 to-white p-4 rounded-xl border border-cyan-100 flex items-center">
+          <div className="bg-cyan-100 p-3 rounded-lg mr-4">
+            <FiStar className="text-cyan-600 text-xl" />
+          </div>
+          <div>
+            <p className="text-sm text-cyan-800">Avg. Rating</p>
+            <p className="text-2xl font-bold text-cyan-900">{avgRating} ★</p>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
