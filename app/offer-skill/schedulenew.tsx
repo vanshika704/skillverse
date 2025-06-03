@@ -1,6 +1,5 @@
 
-
-// import React, { useEffect, useState } from "react";
+// import React, { useState } from "react";
 // import { motion } from "framer-motion";
 // import { ToastContainer, toast } from "react-toastify";
 // import "react-toastify/dist/ReactToastify.css";
@@ -9,9 +8,7 @@
 // import { LiveSession, useLive } from "../hooks/useLive";
 
 // type StatusType = "draft" | "upcoming";
-// interface LiveSessionsProps {
-//   onAddWorkshop?: (workshop: LiveSession & { _id: string; User: string }) => void;
-// }
+
 // interface FormState {
 //   title: string;
 //   description: string;
@@ -23,8 +20,8 @@
 //   status: StatusType;
 // }
 
-// export default function LiveSessions({ onAddWorkshop }: LiveSessionsProps)  {
-//   const { loading, error, data, getLives, createLive } = useLive();
+// export default function LiveSessions() {
+//   const { loading, createLive } = useLive();
 //   const userId = getUserId();
 
 //   const [form, setForm] = useState<FormState>({
@@ -38,24 +35,17 @@
 //     status: "draft",
 //   });
 
- 
-
-
 //   const handleChange = (
-//     e: React.ChangeEvent<
-//       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-//     >
+//     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
 //   ) => {
 //     const { name, value } = e.target;
 
-//     setForm((f) => ({
-//       ...f,
+//     setForm((prev) => ({
+//       ...prev,
 //       [name]:
 //         name === "maxParticipants"
-//           ? Number(value)
-//           : (name === "mode" && (value === "online" || value === "offline")
-//             ? value
-//             : value),
+//           ? Math.max(1, Number(value)) // ensure at least 1 participant
+//           : value,
 //     }));
 //   };
 
@@ -67,6 +57,11 @@
 //       return;
 //     }
 
+//     if (!form.startTime || !form.endTime) {
+//       toast.error("Start time and end time are required.");
+//       return;
+//     }
+
 //     if (new Date(form.endTime) <= new Date(form.startTime)) {
 //       toast.error("End time must be after start time.");
 //       return;
@@ -74,7 +69,7 @@
 
 //     const newSession: LiveSession & { _id: string; User: string } = {
 //       ...form,
-//       _id: `${Date.now()}`,
+//       _id: Date.now().toString(),
 //       User: userId,
 //       maxParticipants: Number(form.maxParticipants),
 //       startTime: new Date(form.startTime).toISOString(),
@@ -86,9 +81,7 @@
 //     try {
 //       await createLive(newSession);
 //       toast.success("Live session created!");
-//       if (onAddWorkshop) {
-//     onAddWorkshop(newSession);
-//   }
+    
 //       setForm({
 //         title: "",
 //         description: "",
@@ -99,8 +92,8 @@
 //         maxParticipants: 10,
 //         status: "draft",
 //       });
-    
-//     } catch {
+//     } catch (error) {
+//       console.error(error);
 //       toast.error("Failed to create session.");
 //     }
 //   };
@@ -111,7 +104,7 @@
 //   };
 
 //   return (
-//     <div className="min-h-screen  font-sans flex flex-col items-center">
+//     <div className="min-h-screen font-sans flex flex-col items-center">
 //       <ToastContainer
 //         position="top-right"
 //         autoClose={4000}
@@ -172,6 +165,7 @@
 //               className="mt-2 block w-full rounded-lg border border-cyan-300 px-4 py-3 text-cyan-900 placeholder-cyan-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
 //             />
 //           </label>
+
 //           <label>
 //             <span className="text-cyan-900 font-medium">End Time</span>
 //             <input
@@ -250,6 +244,8 @@
 //     </div>
 //   );
 // }
+
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ToastContainer, toast } from "react-toastify";
@@ -269,6 +265,8 @@ interface FormState {
   address: string;
   maxParticipants: number;
   status: StatusType;
+  isPaid: boolean;
+  price: number;
 }
 
 export default function LiveSessions() {
@@ -284,19 +282,28 @@ export default function LiveSessions() {
     address: "",
     maxParticipants: 10,
     status: "draft",
+    isPaid: false,
+    price: 0,
   });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
+
+    // Narrow for checkbox to access checked property safely
+    const val =
+      type === "checkbox"
+        ? (e.target as HTMLInputElement).checked
+        : name === "maxParticipants"
+        ? Math.max(1, Number(value))
+        : name === "price"
+        ? Math.max(0, Number(value))
+        : value;
 
     setForm((prev) => ({
       ...prev,
-      [name]:
-        name === "maxParticipants"
-          ? Math.max(1, Number(value)) // ensure at least 1 participant
-          : value,
+      [name]: val,
     }));
   };
 
@@ -305,6 +312,11 @@ export default function LiveSessions() {
 
     if (!userId) {
       toast.error("User not logged in.");
+      return;
+    }
+
+    if (!form.title.trim() || !form.description.trim()) {
+      toast.error("Title and description are required.");
       return;
     }
 
@@ -318,11 +330,22 @@ export default function LiveSessions() {
       return;
     }
 
+    if (form.isPaid && form.price <= 0) {
+      toast.error("Price must be greater than 0 for paid sessions.");
+      return;
+    }
+
+    if (form.mode === "offline" && !form.address.trim()) {
+      toast.error("Address is required for offline sessions.");
+      return;
+    }
+
     const newSession: LiveSession & { _id: string; User: string } = {
       ...form,
       _id: Date.now().toString(),
       User: userId,
       maxParticipants: Number(form.maxParticipants),
+      price: form.isPaid ? Number(form.price) : 0,
       startTime: new Date(form.startTime).toISOString(),
       endTime: new Date(form.endTime).toISOString(),
     };
@@ -332,7 +355,7 @@ export default function LiveSessions() {
     try {
       await createLive(newSession);
       toast.success("Live session created!");
-    
+
       setForm({
         title: "",
         description: "",
@@ -342,6 +365,8 @@ export default function LiveSessions() {
         address: "",
         maxParticipants: 10,
         status: "draft",
+        isPaid: false,
+        price: 0,
       });
     } catch (error) {
       console.error(error);
@@ -451,8 +476,37 @@ export default function LiveSessions() {
               name="address"
               value={form.address}
               onChange={handleChange}
+              required={form.mode === "offline"}
               className="mt-2 block w-full rounded-lg border border-cyan-300 px-4 py-3 text-cyan-900 placeholder-cyan-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
               placeholder="Location address"
+            />
+          </label>
+        )}
+
+        <label className="flex items-center mb-6 space-x-3">
+          <input
+            type="checkbox"
+            name="isPaid"
+            checked={form.isPaid}
+            onChange={handleChange}
+            className="rounded border-cyan-300 text-cyan-600 focus:ring-cyan-500"
+          />
+          <span className="text-cyan-900 font-medium">Paid Session?</span>
+        </label>
+
+        {form.isPaid && (
+          <label className="block mb-6">
+            <span className="text-cyan-900 font-medium">Price ($)</span>
+            <input
+              type="number"
+              name="price"
+              value={form.price}
+              min={0}
+              step={0.01}
+              onChange={handleChange}
+              required={form.isPaid}
+              className="mt-2 block w-full rounded-lg border border-cyan-300 px-4 py-3 text-cyan-900 placeholder-cyan-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
+              placeholder="Enter price in USD"
             />
           </label>
         )}
@@ -489,7 +543,7 @@ export default function LiveSessions() {
             loading ? "opacity-60 cursor-not-allowed" : ""
           }`}
         >
-          {loading ? "Creating..." : "Create Session"}
+          {loading ? "Creating..." : "Create Live Session"}
         </button>
       </motion.form>
     </div>

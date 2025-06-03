@@ -67,7 +67,7 @@ export default function OfferskillsPage() {
       workshopTitle: 'UI Design Fundamentals'
     }
   ]);
-
+ const [workshopFilter, setWorkshopFilter] = useState<string>("all");
   const [feedbackFilter, setFeedbackFilter] = useState('all');
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
   const { getLives } = useLive();
@@ -276,7 +276,13 @@ useEffect(() => {
             )}
 
             {activeTab === 'workshops' && (
-        <MyWorkshops/>
+         <MyWorkshops
+              workshops={workshops}
+              setWorkshops={setWorkshops}
+              workshopFilter={workshopFilter}
+              setWorkshopFilter={setWorkshopFilter}
+              statusColors={statusColors}
+            />
             )}
 
             {activeTab === 'feedback' && (

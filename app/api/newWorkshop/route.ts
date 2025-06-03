@@ -3,7 +3,8 @@
 import { connectToDB } from '@/app/config/db';
 import { Live } from '@/app/models/Live';
 import { getUserFromToken } from '@/app/config/getUserfromToken';
-
+import { generateRoomName } from '@/app/utils/generateroom';
+import { v4 as uuidv4 } from 'uuid';
 export async function GET(request: Request) {
   await connectToDB();
   try {
@@ -35,16 +36,67 @@ export async function GET(request: Request) {
   }
 }
 
+// export async function POST(request: Request) {
+//   await connectToDB();
+//   try {
+//     const user = await getUserFromToken(request);
+//     if (!user) {
+//       return new Response(JSON.stringify({ success: false, message: "Unauthorized" }), { status: 401 });
+//     }
+
+//     const body = await request.json();
+
+//     const {
+//       title,
+//       description,
+//       startTime,
+//       endTime,
+//       mode,
+//       address,
+//       maxParticipants,
+//       status,
+//     } = body;
+
+//     if (!title || !description || !startTime || !endTime || !mode || !maxParticipants || !status) {
+//       return new Response(
+//         JSON.stringify({ success: false, message: 'Missing required fields' }),
+//         { status: 400, headers: { 'Content-Type': 'application/json' } }
+//       );
+//     }
+
+//     const newLive = new Live({
+//       ...body,
+//       organizer: user.id,
+//     });
+
+//     await newLive.save();
+
+//     return new Response(
+//       JSON.stringify({ success: true, message: 'Live session created', data: newLive }),
+//       { status: 201, headers: { 'Content-Type': 'application/json' } }
+//     );
+//   } catch (error) {
+//     console.error('POST error:', error);
+//     return new Response(
+//       JSON.stringify({ success: false, message: 'Error creating live session' }),
+//       { status: 500, headers: { 'Content-Type': 'application/json' } }
+//     );
+//   }
+// }
+
+
 export async function POST(request: Request) {
   await connectToDB();
   try {
     const user = await getUserFromToken(request);
     if (!user) {
-      return new Response(JSON.stringify({ success: false, message: "Unauthorized" }), { status: 401 });
+      return new Response(
+        JSON.stringify({ success: false, message: "Unauthorized" }),
+        { status: 401 }
+      );
     }
 
     const body = await request.json();
-
     const {
       title,
       description,
@@ -54,18 +106,38 @@ export async function POST(request: Request) {
       address,
       maxParticipants,
       status,
+      isPaid,
+      price, // may be undefined if unpaid
     } = body;
 
-    if (!title || !description || !startTime || !endTime || !mode || !maxParticipants || !status) {
+    // Validate required fields
+    if (!title || !description || !startTime || !endTime || !mode || !maxParticipants || !status || isPaid === undefined) {
       return new Response(
         JSON.stringify({ success: false, message: 'Missing required fields' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
+    const id = uuidv4();
+    const meetingRoomId = generateRoomName(title,id);
+
     const newLive = new Live({
-      ...body,
+      _id: id,
+      User: user.id,
+      title,
+      description,
+      startTime,
+      endTime,
+      mode,
+      address,
+      maxParticipants,
+      status,
       organizer: user.id,
+      isLive: false,
+      meetingPlatform: 'jitsi',
+      meetingRoomId,
+      isPaid,
+      price: isPaid ? price : 0,
     });
 
     await newLive.save();
@@ -82,7 +154,6 @@ export async function POST(request: Request) {
     );
   }
 }
-
 export async function DELETE(request: Request) {
   await connectToDB();
   try {

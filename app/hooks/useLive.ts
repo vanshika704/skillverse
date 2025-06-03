@@ -12,6 +12,8 @@ export interface LiveSession {
   maxParticipants: number;
   registered?: number;
   status: "draft" | "upcoming";
+  isPaid: boolean;
+  price: number;
 }
 
 export function useLive() {

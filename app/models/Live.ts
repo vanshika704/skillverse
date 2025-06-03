@@ -1,5 +1,3 @@
-
-
 import mongoose from "mongoose";
 
 const LiveSchema = new mongoose.Schema(
@@ -14,9 +12,13 @@ const LiveSchema = new mongoose.Schema(
     address: { type: String },
     maxParticipants: { type: Number, required: true },
     status: { type: String, required: true },
-    organizer: {type: mongoose.Schema.Types.ObjectId,ref: "User", required: true,},
-
-  },
+    organizer: { type: mongoose.Schema.Types.ObjectId,ref: "User",required: true,},
+    isLive: { type: Boolean, default: false },
+    meetingPlatform: { type: String, enum: ['jitsi'], default: 'jitsi' },
+    meetingRoomId: { type: String },
+    isPaid: { type: Boolean, required: true },
+    price: {type: Number,required: function (this: any): boolean { return this.isPaid;},min: 0,}
+},
   { timestamps: true, _id: false }
 );
 
