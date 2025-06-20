@@ -1,16 +1,22 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import React from 'react';
-import JitsiMeet from '../Jitsi';
 
 const LivePage = () => {
-  const params = useParams();
-  const roomId = params?.id as string;
+  const router = useRouter();
+
+  const deployedUrl = 'https://callora.vercel.app/';
+
+  useEffect(() => {
+    // Redirect the user as soon as they visit this page
+    window.location.href = deployedUrl;
+  }, []);
 
   return (
-    <div>
-      <JitsiMeet roomName={roomId} />
+    <div className="w-full h-screen flex flex-col items-center justify-center text-center">
+      <p className="text-cyan-700">Redirecting you to the video call...</p>
     </div>
   );
 };
